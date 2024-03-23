@@ -4,10 +4,16 @@ import * as url from "node:url";
 
 import { createRequestHandler } from "@remix-run/express";
 import { broadcastDevReady, installGlobals } from "@remix-run/node";
+import { Adapter } from "webcontent";
 import compression from "compression";
 import express from "express";
 import morgan from "morgan";
 import sourceMapSupport from "source-map-support";
+
+const contentAdapter = new Adapter({
+    contentFolder: "~/content",
+    baseRoute: path.join("./app"),
+});
 
 sourceMapSupport.install({
     retrieveSourceMap: function (source) {
@@ -36,7 +42,10 @@ const initialBuild = await reimportServer();
 const remixHandler =
     process.env.NODE_ENV === "development"
         ? await createDevRequestHandler(initialBuild)
-        : createRequestHandler({ build: initialBuild });
+        : createRequestHandler({
+              build: initialBuild,
+              getLoadContext: () => ({ contentAdapter }),
+          });
 
 const app = express();
 
@@ -60,9 +69,9 @@ app.use(morgan("tiny"));
 app.all("*", remixHandler);
 
 const port = process.env.PORT || 3000;
+
 app.listen(port, async () => {
     console.log(`Express server listening at http://localhost:${port}`);
-
     if (process.env.NODE_ENV === "development") {
         broadcastDevReady(initialBuild);
     }
@@ -105,6 +114,10 @@ async function createDevRequestHandler(initialBuild) {
             return createRequestHandler({
                 build,
                 mode: "development",
+                getLoadContext: (req) => ({
+                    request: req,
+                    contentAdapter,
+                }),
             })(req, res, next);
         } catch (error) {
             next(error);

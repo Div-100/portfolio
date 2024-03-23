@@ -1,3 +1,5 @@
-@tailwind base; 
+@import url("https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300..800;1,300..800&display=swap"); /* Faustina; Body text */
+
+@tailwind base;
 @tailwind components;
 @tailwind utilities;

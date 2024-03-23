@@ -8,6 +8,7 @@ import {
     Scripts,
     ScrollRestoration,
 } from "@remix-run/react";
+import { useEffect, useRef, useState } from "react";
 import tailwindcss from "~/styles/tailwind.css";
 
 export const links: LinksFunction = () => [
@@ -30,8 +31,10 @@ export default function App() {
                 <Meta />
                 <Links />
             </head>
-            <body>
-                <Outlet />
+            <body className="h-[1500vh] relative flex flex-col">
+                <main>
+                    <Outlet />
+                </main>
                 <ScrollRestoration />
                 <Scripts />
                 <LiveReload />
